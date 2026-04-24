@@ -1,3 +1,4 @@
+import json
 import os
 import argparse
 from datetime import datetime
@@ -16,19 +17,27 @@ def draft_email(situation, tone):
     
     r = client.models.generate_content(
         model=MODEL,
-        config=types.GenerateContentConfig(system_instruction=system),
+        config=types.GenerateContentConfig(
+            system_instruction=system,
+            response_mime_type="application/json" # This is the magic JSON toggle
+        ),
         contents=user
     )
-    return r.text
+    # Convert the raw JSON string from Gemini into a Python Dictionary
+    return json.loads(r.text)
 
-def save_output(text, filename):
+def save_output(email_data, filename):
     os.makedirs("outputs", exist_ok=True)
     timestamp = datetime.now().strftime("%H%M%S")
     path = f"outputs/{filename}_{timestamp}.txt"
     
     with open(path, "w") as f:
-        f.write(text)
-    print(f"\n✅ Email saved to: {path}")
+        # We access the keys from the dictionary we got from Gemini
+        f.write(f"SUBJECT: {email_data['subject']}\n")
+        f.write("-" * 30 + "\n")
+        f.write(email_data['body'])
+    
+    print(f"\n✅ JSON-structured Draft saved to: {path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="AI Email Drafter")
@@ -40,5 +49,6 @@ if __name__ == "__main__":
     
     print("\n🤖 Drafting your email...")
     result = draft_email(args.situation, args.tone)
-    print("\n" + result)
+    print(f"\nSubject: {result['subject']}")
+    print(f"\nBody:\n{result['body']}")
     save_output(result, args.save)
