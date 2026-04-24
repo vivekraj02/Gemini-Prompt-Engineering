@@ -54,4 +54,4 @@ A functional command-line utility located in the `/email_drafter` folder that au
 
 ### Installation
 1. **Clone the repo:**`git clone https://github.com/vivekraj02/Gemini-Prompt-Engineering.git`
-2. **Setup .env:**Add `GEMINI_API_KEY=your_key` to a `.env` file in the root.
+2. **Setup .env:** Add `GEMINI_API_KEY=your_key` to a `.env` file in the root.
